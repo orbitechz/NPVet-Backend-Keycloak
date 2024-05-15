@@ -1,5 +1,7 @@
 package com.orbitech.npvet.config;
 
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -14,7 +16,8 @@ import java.nio.file.AccessDeniedException;
 import java.security.InvalidKeyException;
 import java.util.List;
 
-//@RestControllerAdvice
+@RestControllerAdvice
+@Slf4j
 public class GlobalErrorHandler {
     /**
      * Erros de Service
@@ -22,19 +25,23 @@ public class GlobalErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(Exception.class)
     public String handleException(Exception e) {
+        log.error("OCORREU UM ERRO Exception: " + e.getMessage());
         return e.getMessage();
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(AccessDeniedException.class)
     public String handleAccessDenied(AccessDeniedException e) {
+        log.error("OCORREU UM ERRO AccessDeniedException: " + e.getMessage());
         return e.getMessage();
     }
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(HttpClientErrorException.NotFound.class)
-    public String handleNotFound() {
+    public String handleNotFound(HttpClientErrorException e) {
+        log.error("OCORREU UM ERRO HttpClientErrorException:" + e.getMessage());
         return "Ocorreu um erro interno!";
     }
+
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
@@ -43,10 +50,10 @@ public class GlobalErrorHandler {
     }
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(InvalidKeyException.class)
-    public String handleInvalidKey() {
+    public String handleInvalidKey(InvalidKeyException e) {
+        log.error("OCORREU UM ERRO InvalidKeyException: " + e.getMessage());
         return "Ocorreu um erro interno!";
     }
-
     /**
      * Erros do Hibernate Validator
      * */
@@ -57,6 +64,7 @@ public class GlobalErrorHandler {
     ){
         List<ObjectError> errors = methodArgumentNotValidException.getBindingResult().getAllErrors();
         FieldError firstError = (FieldError) errors.get(0);
+        log.error("OCORREU UM ERRO MethodArgumentNotValidException:" + firstError.getDefaultMessage());
         return firstError.getDefaultMessage();
     }
 
@@ -68,4 +76,18 @@ public class GlobalErrorHandler {
 //    public String handleJsonException(){
 //        return "Existem erros na sua solicitação!";
 //    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ServiceException.class)
+    public String handleServiceException(ServiceException e){
+        log.error("OCORREU UM ERRO ServiceException:  " + e.getMessage());
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String handleIllegalArgumentException(Exception e){
+        log.error("OCORREU UM ERRO IllegalArgumentException: " + e.getMessage());
+        return e.getMessage();
+    }
 }
