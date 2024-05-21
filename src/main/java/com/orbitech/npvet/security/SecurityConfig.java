@@ -26,7 +26,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/*", "/auth")
+                        .requestMatchers("/auth/*", "/auth", "/actuator", "/actuator/**", "/actuactor/*")
                         .permitAll()
                         .requestMatchers("/npvet/api/**", "/npvet/api").permitAll()
                         .anyRequest().authenticated());
